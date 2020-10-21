@@ -1,7 +1,8 @@
 package com.lbl.test;
 
-import com.lbl.test.Module.User;
+import com.lbl.test.module.User;
 import com.lbl.test.service.UserService;
+import com.lbl.test.service.UserServiceImpl;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
@@ -11,8 +12,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class MainTest {
 
 	public static void main(String[] args) {
-		AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(MainConfig.class);
-		UserService bean = annotationConfigApplicationContext.getBean(UserService.class);
+//		AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(MainConfig.class);
+		AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(UserServiceImpl.class);
+		UserService bean = annotationConfigApplicationContext.getBean(UserServiceImpl.class);
 		User user = bean.getUser();
 		System.out.println(user.toString());
 	}

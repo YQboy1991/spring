@@ -53,6 +53,11 @@ import org.springframework.util.Assert;
  */
 public class AnnotationConfigApplicationContext extends GenericApplicationContext implements AnnotationConfigRegistry {
 
+	/**
+	 * 这个类顾名思义是一个reader, 一个读取器
+	 * 读取什么呢?还是顾名思义AnnotatedBeanDefinitionReader意思是读取一个被加了注解的bean
+	 * 这个类在构造方法中实例化的
+	 */
 	private final AnnotatedBeanDefinitionReader reader;
 
 	private final ClassPathBeanDefinitionScanner scanner;
@@ -63,6 +68,11 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
 	 */
 	public AnnotationConfigApplicationContext() {
+		/**
+		 * 创建一个读取注解的Bean定义读取器
+		 * 什么是Bean定义, BeanDefinition?
+		 * @See org.springframework.beans.factory.config.BeanDefinition
+		 */
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
@@ -84,7 +94,10 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * {@link Configuration @Configuration} classes
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
+		// 这里因为有父类,所以会先调用父类的构造方法,然后才会调用自己的构造方法
+		// 在自己构造方法中初始一个读取器和扫描器
 		this();
+		// 注册类
 		register(componentClasses);
 		refresh();
 	}
@@ -155,6 +168,11 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * {@link Configuration @Configuration} classes
 	 * @see #scan(String...)
 	 * @see #refresh()
+	 *
+	 * 注册单个Bean给容器, 可以注册配置类,也可以注册某一个类,如UserService
+	 * 比如有新加的类可以用该方法
+	 * 但是注册之后需要手动调refresh()方法去触发容器解析注解
+	 *
 	 */
 	@Override
 	public void register(Class<?>... componentClasses) {

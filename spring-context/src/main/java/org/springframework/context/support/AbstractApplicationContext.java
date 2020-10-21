@@ -517,12 +517,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
+			// 准备工作,包括设置启动时间, 是否激活标识位, 初始化属性源(propertity source)配置
+			// 这个不重要
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
+			// 这个也不重要, 其实就是把 DefaultListableBeanFactory 拿出来使用
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
+			// 这个非常重要, 见方法注释
 			prepareBeanFactory(beanFactory);
 
 			try {
@@ -598,6 +602,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Initialize any placeholder property sources in the context environment.
+		// 这个方法目前没有子类去实现, spring期待后续版本去实现
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
@@ -643,14 +648,24 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Configure the factory's standard context characteristics,
 	 * such as the context's ClassLoader and post-processors.
 	 * @param beanFactory the BeanFactory to configure
+	 *
+	 * 配置其标准的特征, 比如上下文的加载器ClassLoader和post-processors回调
+	 *
 	 */
 	protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		// Tell the internal bean factory to use the context's class loader etc.
+		// spring给了一个classLoader, 可以认为是一个类加载器, 这个不重要
 		beanFactory.setBeanClassLoader(getClassLoader());
+
+		// bean的表达式解析器
 		beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
+
+		// 这个也不太重要, 拿到了一个Property的编辑器, 现在很少用了, springBoot都是yml
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
 		// Configure the bean factory with context callbacks.
+		// 这句代码是spring最核心最核心的东西了, 没有之一
+		// 添加一个后置管理器
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
 		beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);

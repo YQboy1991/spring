@@ -81,6 +81,8 @@ import java.lang.annotation.Target;
  * @see Bean
  * @see ComponentScan
  * @see org.springframework.stereotype.Component
+ *
+ * 如果有多个实现类, 可以使用这个注解默认一个主要的实现进行装配
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

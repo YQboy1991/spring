@@ -54,6 +54,43 @@ import org.springframework.lang.Nullable;
  * @see DestructionAwareBeanPostProcessor
  * @see ConfigurableBeanFactory#addBeanPostProcessor
  * @see BeanFactoryPostProcessor
+ *
+ * BeanPostProcessor是spring框架的通过的一个扩展类点(不止一个)
+ * 这里解释一个误区, 并不是想实例的类去实现该接口, 而是创建一个专门的类去实现这个接口, 在容器中所有的类初始化前后都会调用这个专门的类的方法, 因此如果要想指定某个类做某些事,需要进行beanName的判断
+ * 通过实现BeanPostProcessor接口,程序员就可以插手bean实例化的过程, 从而减轻了BeanFactory的负担
+ * 值得说明的是这个接口可以设置多个, 会形成一个列表, 然后依次执行
+ * 比如AOP就是在bean实例后期间将切面逻辑织入bean实例中的
+ * AOP也正是通过BeanPostProcessor和IOC容器建立起了联系
+ *
+ * (由spring提供的默认的PostProcessor, spring提供了很多默认的PostProcessor, 下面我会一一介绍这些实现类的功能)
+ * 可以来演示一下BeanPostProcessor的使用方式(把动态代理和IOC,AOP结合起来使用)
+ * 在演示之前,先来熟悉一下这个接口, 其实这个接口本身特别简单
+ * 但是它的实现类特别复杂
+ * 可以看看spring提供了哪些默认实现(前方高能)
+ *
+ * 查看类的关系图可以知道spring提供了以下的默认实现, 因为高能, 故而我们只是解释几个常用的
+ * 1. ApplicationContextAwareProcessor(acap)
+ * 	acap后置处理器的作用是, 当应用程序定义的bean实现ApplicationContextAware接口时注入ApplicationContext对象
+ * 	当然这是它的第一个作用, 它还有其他作用, 这里就不一一列举了, 可以参考源码
+ * 	我们可以针对ApplicationContextAwareProcessor写一个例子
+ * 2. InitDestroyAnnotationBeanPostProcessor
+ * 	用来处理自定义的初始化方法和销毁方法
+ * 	上次说过spring中提供了三种自定义初始化和销毁方法分别是
+ * 	① 通过@Bean指定init-method和destroy-method属性 @Bean(initMethod = "XXX")
+ * 	② Bean实现InitializingBean接口和DisposableBean接口
+ * 	③ @PostContruct和@PreDestory
+ *  为什么spring通过这三种方法就能完成对Bean生命周期的回调呢?
+ *  可以通过InitDestroyAnnotationBeanPostProcessor源码来解释
+ * 3. InstantiationAwareBeanPostProcessor
+ * 4. CommonAnnotationBeanPostProcessor
+ * 5. AutowiredAnnotationBeanPostProcessor
+ * 6. RequiredAnnotationBeanPostProcessor
+ * 7. BeanValidationPostProcessor
+ * 8. AbstractAutoProxyCreator
+ * 	代理创建器
+ * ......
+ *
+ * 后面会一一解释
  */
 public interface BeanPostProcessor {
 
@@ -69,6 +106,9 @@ public interface BeanPostProcessor {
 	 * if {@code null}, no subsequent BeanPostProcessors will be invoked
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
+	 *
+	 * 在bean的初始化之前执行
+	 *
 	 */
 	@Nullable
 	default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -95,6 +135,8 @@ public interface BeanPostProcessor {
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
 	 * @see org.springframework.beans.factory.FactoryBean
+	 *
+	 * 在bean的初始化之后执行
 	 */
 	@Nullable
 	default Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {

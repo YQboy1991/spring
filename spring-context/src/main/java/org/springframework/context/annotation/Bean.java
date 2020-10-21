@@ -212,6 +212,12 @@ import org.springframework.core.annotation.AliasFor;
  * @see org.springframework.stereotype.Component
  * @see org.springframework.beans.factory.annotation.Autowired
  * @see org.springframework.beans.factory.annotation.Value
+ *
+ * spring中的Bean有四种形式
+ * 1. xml定义的bean
+ * 2. 注解中定义的bean, 如@Controller, @Service等
+ * 3. 被@Bean注解的bean
+ * 4. spring内部bean
  */
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

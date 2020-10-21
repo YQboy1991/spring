@@ -1,6 +1,6 @@
 package com.lbl.test.service;
 
-import com.lbl.test.Module.User;
+import com.lbl.test.module.User;
 
 /**
  * @author: BaoLei Li

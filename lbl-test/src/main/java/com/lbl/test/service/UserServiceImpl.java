@@ -1,13 +1,12 @@
 package com.lbl.test.service;
 
-import com.lbl.test.Module.User;
-import org.springframework.stereotype.Service;
+import com.lbl.test.module.User;
 
 /**
  * @author: BaoLei Li
  * @date: 2020/10/21
  **/
-@Service
+//@Service
 public class UserServiceImpl implements UserService {
 
 	@Override

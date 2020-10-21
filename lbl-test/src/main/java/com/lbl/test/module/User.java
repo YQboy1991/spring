@@ -1,4 +1,4 @@
-package com.lbl.test.Module;
+package com.lbl.test.module;
 
 
 /**
