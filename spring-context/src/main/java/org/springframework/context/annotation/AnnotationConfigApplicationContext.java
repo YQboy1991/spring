@@ -69,11 +69,15 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public AnnotationConfigApplicationContext() {
 		/**
-		 * 创建一个读取注解的Bean定义读取器
+		 * 创建一个Bean定义读取器, 读取加了注解的类
 		 * 什么是Bean定义, BeanDefinition?
 		 * @See org.springframework.beans.factory.config.BeanDefinition
+		 * 这里面使用了BeanDefinitionRegistry接收,也就是说我们的AnnotationConfigApplicationContext等于BeanDefinitionRegistry
+		 *
+		 * 在这里面创建了spring的6大bean定义对象
 		 */
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+		// 能够扫描我们BeanDefinition, 并且转换成bd
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 
@@ -95,10 +99,17 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
 		// 这里因为有父类,所以会先调用父类的构造方法,然后才会调用自己的构造方法
+		/**
+		 * public GenericApplicationContext() {
+		 * 	this.beanFactory = new DefaultListableBeanFactory();
+		 * }
+		 * */
 		// 在自己构造方法中初始一个读取器和扫描器
 		this();
 		// 注册类
 		register(componentClasses);
+
+		/**贼重要*/
 		refresh();
 	}
 

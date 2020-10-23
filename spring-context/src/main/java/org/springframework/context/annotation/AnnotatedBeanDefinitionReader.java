@@ -85,6 +85,7 @@ public class AnnotatedBeanDefinitionReader {
 		Assert.notNull(environment, "Environment must not be null");
 		this.registry = registry;
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, null);
+		// 重要 6大对象在这里面创建的
 		AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
 	}
 
@@ -256,7 +257,7 @@ public class AnnotatedBeanDefinitionReader {
 		 * 这个AnnotatedGenericBeanDefinition可以理解为一个数据结构
 		 * AnnotatedGenericBeanDefinition包含了类的其他信息,比如一些元信息, scope, lazy等等
 		 * */
-
+		// new AnnotatedGenericBeanDefinition(beanClass) 通过构造方法将类转成bean定义
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(beanClass);
 
 		// 判断这个类是否需要跳过解析, 通过源码可以知道, spring判断是否跳过解析, 主要判断类有没有加注解, 没有加注解就跳过解析
@@ -316,6 +317,7 @@ public class AnnotatedBeanDefinitionReader {
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 
 		/**
+		 * 重要
 		 * this.registry就是将bean定义放到容器中的作用
 		 * 放到的容器是DefaultListableBeanFactory
 		 * */
