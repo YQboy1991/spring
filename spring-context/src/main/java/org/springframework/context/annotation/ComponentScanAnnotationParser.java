@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -74,14 +75,20 @@ class ComponentScanAnnotationParser {
 
 
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, final String declaringClass) {
+		// 没有使用
+		// public AnnotationConfigApplicationContext() {
+		// 		this.scanner = new ClassPathBeanDefinitionScanner(this);
+		// }
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry,
 				componentScan.getBoolean("useDefaultFilters"), this.environment, this.resourceLoader);
 
+		// BeanNameGenerator
 		Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
 		boolean useInheritedGenerator = (BeanNameGenerator.class == generatorClass);
 		scanner.setBeanNameGenerator(useInheritedGenerator ? this.beanNameGenerator :
 				BeanUtils.instantiateClass(generatorClass));
 
+		// web当中讲解
 		ScopedProxyMode scopedProxyMode = componentScan.getEnum("scopedProxy");
 		if (scopedProxyMode != ScopedProxyMode.DEFAULT) {
 			scanner.setScopedProxyMode(scopedProxyMode);
@@ -91,8 +98,10 @@ class ComponentScanAnnotationParser {
 			scanner.setScopeMetadataResolver(BeanUtils.instantiateClass(resolverClass));
 		}
 
+		// 没啥用
 		scanner.setResourcePattern(componentScan.getString("resourcePattern"));
 
+		// 遍历当中的过滤
 		for (AnnotationAttributes filter : componentScan.getAnnotationArray("includeFilters")) {
 			for (TypeFilter typeFilter : typeFiltersFor(filter)) {
 				scanner.addIncludeFilter(typeFilter);
@@ -104,8 +113,11 @@ class ComponentScanAnnotationParser {
 			}
 		}
 
+		// 判断是否要懒加载, 默认都是false
 		boolean lazyInit = componentScan.getBoolean("lazyInit");
 		if (lazyInit) {
+			// 这里面只是将默认值设为false, 并没有真正设置到各个BeanDefinition中, 后面扫描包内的class并解析成BeanDefinition时, 会再操作
+			// AbstractBeanDefinition.applyDefaults
 			scanner.getBeanDefinitionDefaults().setLazyInit(true);
 		}
 
@@ -129,7 +141,9 @@ class ComponentScanAnnotationParser {
 				return declaringClass.equals(className);
 			}
 		});
-		// 直接看这里 扫描包
+
+		// 这里最重要
+		// 直接看这里 扫描包, 并且把BeanDefinition注册到容器中
 		return scanner.doScan(StringUtils.toStringArray(basePackages));
 	}
 

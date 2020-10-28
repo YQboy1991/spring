@@ -137,14 +137,21 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		/**
+		 * 以下是注册@Import 导入的三种, 注册到容器中
+		 */
+		// 这个是Import的普通类, 这里是importSelector方法中返回的
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
+
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
 
+		// xml
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+		// 注册到容器中, 这个是处理的ImportBeanDefinitionRegistrars的接口
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 

@@ -39,6 +39,8 @@ import org.springframework.util.Assert;
  * @since 2.5
  * @see AnnotatedBeanDefinition#getMetadata()
  * @see org.springframework.core.type.StandardAnnotationMetadata
+ *
+ * 被注解注释的通用的bean定义
  */
 @SuppressWarnings("serial")
 public class AnnotatedGenericBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition {

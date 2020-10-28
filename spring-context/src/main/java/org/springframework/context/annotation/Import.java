@@ -49,6 +49,13 @@ import java.lang.annotation.Target;
  * @see ImportSelector
  * @see ImportBeanDefinitionRegistrar
  * @see ImportResource
+ *
+ *
+ * Import可以导入三种
+ * 1. 普通的
+ * 2. ImportSelector
+ * 3. ImportBeanDefinitionRegistrar
+ * 处理逻辑见org.springframework.context.annotation.ConfigurationClassParser#processImports(org.springframework.context.annotation.ConfigurationClass, org.springframework.context.annotation.ConfigurationClassParser.SourceClass, java.util.Collection, java.util.function.Predicate, boolean)
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

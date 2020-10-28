@@ -77,7 +77,15 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 		 * 在这里面创建了spring的6大bean定义对象
 		 */
 		this.reader = new AnnotatedBeanDefinitionReader(this);
-		// 能够扫描我们BeanDefinition, 并且转换成bd
+
+		/**
+		 * 这个方法不重要...
+		 *
+		 * 能够扫描我们BeanDefinition, 并且转换成bd
+		 * 但是实际上我们扫描包不是scanner这个对象
+		 * 是spring自己new的一个ClassPathBeanDefinitionScanner
+		 * 这里的scanner仅仅是为了程序员能够在外部调用AnnotationConfigApplicationContext对象的scan方法使用
+		 */
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 

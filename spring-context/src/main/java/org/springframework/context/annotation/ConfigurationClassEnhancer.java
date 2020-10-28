@@ -74,6 +74,7 @@ class ConfigurationClassEnhancer {
 
 	// The callbacks to use. Note that these callbacks must be stateless.
 	private static final Callback[] CALLBACKS = new Callback[] {
+			// 这两个拦截器干了拦截的事
 			new BeanMethodInterceptor(),
 			new BeanFactoryAwareMethodInterceptor(),
 			NoOp.INSTANCE
@@ -106,6 +107,7 @@ class ConfigurationClassEnhancer {
 			}
 			return configClass;
 		}
+		// 返回一个cglib的代理对象
 		Class<?> enhancedClass = createClass(newEnhancer(configClass, classLoader));
 		if (logger.isTraceEnabled()) {
 			logger.trace(String.format("Successfully enhanced %s; enhanced class name is: %s",
@@ -119,11 +121,24 @@ class ConfigurationClassEnhancer {
 	 */
 	private Enhancer newEnhancer(Class<?> configSuperClass, @Nullable ClassLoader classLoader) {
 		Enhancer enhancer = new Enhancer();
+		// 增强父类, 地球人都知道cglib是基于继承来的
 		enhancer.setSuperclass(configSuperClass);
+		// 增强接口,为什么要增强接口?
+		// 便于判断, 表示一个类已经被增强了
+		// EnhancedConfiguration这个接口实现了BeanFactoryAware,可以为我们类中注入BeanFactory
+		// 这样我们就可以判断,想从BeanFactory中获取或者是直接new了
 		enhancer.setInterfaces(new Class<?>[] {EnhancedConfiguration.class});
 		enhancer.setUseFactory(false);
 		enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
+		// BeanFactoryAwareGeneratorStrategy是一个生成策略
+		// 主要为生成的CGLIB类中添加成员变量$$beanFactory
+		// 这样,就可以将BeanFactory赋值给这个属性了
+		// 同事基于接口EnhancedConfiguration的父接口BeanFactoryAware中的setBeanFactory方法,
+		// 设置此变量的值为当前Context中的beanFactory, 如果一来我们这个cglib代理的对象就有了beanFactory
+		// 有了factory就能获取对象, 而不用去通过方法获取对象了, 因为通过方法获得对象不能控制其过程
+		// 该BeanFactory的作用是在this调用时拦截该调用, 并直接在beanFactory中获得目标bean
 		enhancer.setStrategy(new BeanFactoryAwareGeneratorStrategy(classLoader));
+		// 添加了一个方法过滤器
 		enhancer.setCallbackFilter(CALLBACK_FILTER);
 		enhancer.setCallbackTypes(CALLBACK_FILTER.getCallbackTypes());
 		return enhancer;
@@ -284,6 +299,8 @@ class ConfigurationClassEnhancer {
 		public Object intercept(Object enhancedConfigInstance, Method beanMethod, Object[] beanMethodArgs,
 					MethodProxy cglibMethodProxy) throws Throwable {
 
+			// enhancedConfigInstance 代理对象
+			// 通过enhancedConfigInstance生成的成员变量$$BeanFactory获得beanFactory
 			ConfigurableBeanFactory beanFactory = getBeanFactory(enhancedConfigInstance);
 			String beanName = BeanAnnotationHelper.determineBeanNameFor(beanMethod);
 

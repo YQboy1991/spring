@@ -50,6 +50,7 @@ import org.springframework.stereotype.Component;
  */
 abstract class ConfigurationClassUtils {
 
+
 	public static final String CONFIGURATION_CLASS_FULL = "full";
 
 	public static final String CONFIGURATION_CLASS_LITE = "lite";
@@ -122,12 +123,21 @@ abstract class ConfigurationClassUtils {
 				return false;
 			}
 		}
+		/**
+		 * 这里面加不加@Configuration的区别是beanDef.setAttribute的值是Full还是Lite
+		 * Full 表示spring会认为是一个全注解的类
+		 * Lite 表示spring会认为是一个部分注解的类,可能有些注解就不会生效了
+		 */
 
 		// 判断是否加了@Configuration注解
+		// 如果加了@Configuration注解, 下面几个注解就不会再判断了
+		// 这里是Full的判断
 		Map<String, Object> config = metadata.getAnnotationAttributes(Configuration.class.getName());
 		if (config != null && !Boolean.FALSE.equals(config.get("proxyBeanMethods"))) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+		// isConfigurationCandidate() 判断是否加了Component, ComponentScan, Import, ImportResource注解
+		// 这里是Lite的判断
 		else if (config != null || isConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}

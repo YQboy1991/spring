@@ -365,6 +365,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * @since 2.5
 	 */
 	public void applyDefaults(BeanDefinitionDefaults defaults) {
+		//org.springframework.context.annotation.ComponentScanAnnotationParser.parse
+		// 前面如果给配置类设置@Lazy, 会去取一下, 这里面才是真正往BeanDefinition设置
 		Boolean lazyInit = defaults.getLazyInit();
 		if (lazyInit != null) {
 			setLazyInit(lazyInit);

@@ -57,6 +57,13 @@ import org.springframework.lang.Nullable;
  * @see Import
  * @see ImportBeanDefinitionRegistrar
  * @see Configuration
+ *
+ * 该接口文档上说的明明白白，其主要作用是收集需要导入的配置类，
+ * 如果该接口的实现类同时实现EnvironmentAware， BeanFactoryAware ，BeanClassLoaderAware或者ResourceLoaderAware，
+ * 那么在调用其selectImports方法之前先调用上述接口中对应的方法，
+ * 如果需要在所有的@Configuration处理完在导入时可以实现DeferredImportSelector接口。
+ *
+ * https://www.cnblogs.com/niechen/p/9262452.html
  */
 public interface ImportSelector {
 

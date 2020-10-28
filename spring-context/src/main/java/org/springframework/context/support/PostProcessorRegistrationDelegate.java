@@ -71,8 +71,13 @@ final class PostProcessorRegistrationDelegate {
 
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+
+			/**
+			 * 这里面区分了两种类型的list, 因为功能不同, 见类注解
+			 */
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
+
 			// 自定义的BeanFactoryPostProcessor
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 
@@ -124,6 +129,10 @@ final class PostProcessorRegistrationDelegate {
 			 * 下面我们对这个牛逼哄哄的类重点解释
 			 * */
 
+			/**
+			 * ConfigutationClassPostProcessor这个类实现了PriorityOrdered, 并且优先级是Integer.MaxValue, 优先级最高, 因此最优被执行
+			 * 这一步执行完之后, 我们自定义的bean, 比如@Component等, 就都被扫描并且BeanDefinition被添加到容器中了
+			 */
 			for (String ppName : postProcessorNames) {
 				if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
 					currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
@@ -144,6 +153,8 @@ final class PostProcessorRegistrationDelegate {
 
 			// 这里会执行到六大类之一的 org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanFactory
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+			// 到这里执行完所有的BeanDefinitionRegistryPostProcessor
+			// 这个list只是一个临时变量, 故而要清除
 			currentRegistryProcessors.clear();
 
 			// Next, invoke the BeanDefinitionRegistryPostProcessors that implement Ordered.
@@ -160,6 +171,7 @@ final class PostProcessorRegistrationDelegate {
 			currentRegistryProcessors.clear();
 
 			// Finally, invoke all other BeanDefinitionRegistryPostProcessors until no further ones appear.
+			// 基本上不会执行
 			boolean reiterate = true;
 			while (reiterate) {
 				reiterate = false;
@@ -178,7 +190,13 @@ final class PostProcessorRegistrationDelegate {
 			}
 
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
+			// 执行BeanFactoryPostProcessor的回调, 前面不是吗?
+			// 前面执行的BeanFactoryPostProcessor的子类BeanDefinitionRegistryPostProcessor的回调, 调用的是postProcessBeanDefinitionRegistry这个方法
+			// 这是执行的BeanFactoryPostProcessor的回调, 调用的是postProcessBeanFactory这个方法
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
+
+			// 这是执行的BeanFactoryPostProcessor的回调, 调用的是postProcessBeanFactory这个方法
+			// regularPostProcessors这里面不包含BeanDefinitionRegistryPostProcessor的子类
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
 		}
 
@@ -187,6 +205,9 @@ final class PostProcessorRegistrationDelegate {
 			invokeBeanFactoryPostProcessors(beanFactoryPostProcessors, beanFactory);
 		}
 
+		/**
+		 * 后面的代码不重要
+		 */
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let the bean factory post-processors apply to them!
 		String[] postProcessorNames =

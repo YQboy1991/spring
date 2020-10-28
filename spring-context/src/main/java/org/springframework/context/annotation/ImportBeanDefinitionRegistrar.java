@@ -57,6 +57,10 @@ import org.springframework.core.type.AnnotationMetadata;
  * @see Import
  * @see ImportSelector
  * @see Configuration
+ *
+ * 这个类牛逼哄哄, 它到底能干嘛
+ *
+ * 他能往我们BeanDefinition中动态添加BeanDefinition, 我们Mybatis就是使用的这个, 将Dao接口转换为对象,并将bean定义放到容器中的
  */
 public interface ImportBeanDefinitionRegistrar {
 

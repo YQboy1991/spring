@@ -276,7 +276,9 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 			// 扫描basePackages路径下的java文件
 			// 并把它转成BeanDefinition类型
 			// 这行代码是最牛逼的, 真正做扫描的
+			// 这里面是asm实现的
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
+
 			for (BeanDefinition candidate : candidates) {
 				// 解析scope属性
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
@@ -284,13 +286,18 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
 				// 如果这个类是AbstractBeanDefinition的子类
 				// 则为他设置默认值, 比如lazy, init, destory
+				// 这里面会进入, 因为上面扫描org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider.findCandidateComponents
+				// 创建的是new ScannedGenericBeanDefinition(metadataReader);
 				if (candidate instanceof AbstractBeanDefinition) {
+					// 如果这个类是AnnotatedBeanDefinition, 会为它设置默认的值, 比如lazy, init destory
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				// 检查并且处理常用的注解
 				// 这里的处理主要是指把常用注解的值设置到AnnotatedBeanDefinition中
 				// 当前前提是这个类必须是AnnotatedBeanDefinition类型的, 说白了就是加了注解的类
+				// 如果是加了注解的, 再处理一遍注解
 				if (candidate instanceof AnnotatedBeanDefinition) {
+					// 真正读注解的值
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
 				if (checkCandidate(beanName, candidate)) {
@@ -313,6 +320,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param beanName the generated bean name for the given bean
 	 */
 	protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) {
+		// 设置默认值
 		beanDefinition.applyDefaults(this.beanDefinitionDefaults);
 		if (this.autowireCandidatePatterns != null) {
 			beanDefinition.setAutowireCandidate(PatternMatchUtils.simpleMatch(this.autowireCandidatePatterns, beanName));
